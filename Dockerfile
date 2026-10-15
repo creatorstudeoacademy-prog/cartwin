@@ -5,6 +5,7 @@ COPY package.json ./
 RUN npm install
 COPY . .
 RUN npx prisma generate
+RUN npx prisma db push --accept-data-loss
 RUN npm run build
 ENV NODE_ENV=production
 EXPOSE 3000
