@@ -1,7 +1,7 @@
 # Cart Recovery Popup — Shopify app configuration
 # Values with TODO must be filled after creating the app in Partner Dashboard.
 
-client_id = "ab2c3d2d6c9cde103c3c1975de332ca7"
+client_id = "8285b8fd5b27409d57364414be7a9d0c"
 name = "CartWin"
 handle = "cartwin"
 application_url = "TODO_APP_URL"
