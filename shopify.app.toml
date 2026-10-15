@@ -4,7 +4,7 @@
 client_id = "8285b8fd5b27409d57364414be7a9d0c"
 name = "CartWin"
 handle = "cartwin"
-application_url = "TODO_APP_URL"
+application_url = "https://cartwin-production.up.railway.app"
 embedded = true
 
 [build]
@@ -12,7 +12,7 @@ automatically_update_urls_on_dev = true
 dev_store_url = "lumen-demo-rz4icdzs.myshopify.com"
 
 [auth]
-redirect_urls = ["TODO_APP_URL/auth/callback"]
+redirect_urls = ["https://cartwin-production.up.railway.app/auth/callback"]
 
 [webhooks]
 api_version = "2026-01"
@@ -43,6 +43,6 @@ subpath = "cart-recovery"
 embedded = false
 
 [privacy_compliance]
-customer_data_request_url = "TODO_APP_URL/webhooks/compliance"
-customer_deletion_url = "TODO_APP_URL/webhooks/compliance"
-shop_deletion_url = "TODO_APP_URL/webhooks/compliance"
+customer_data_request_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
+customer_deletion_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
+shop_deletion_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
