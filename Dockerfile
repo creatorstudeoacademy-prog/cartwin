@@ -2,10 +2,10 @@ FROM node:20-slim AS base
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install dependencies
+# Install dependencies (including devDeps for build)
 FROM base AS deps
 COPY package.json ./
-RUN npm install
+RUN npm install --include=dev
 
 # Build the app
 FROM base AS build
