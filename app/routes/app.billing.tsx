@@ -10,7 +10,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     plans: [MONTHLY_PLAN],
     isTest: process.env.NODE_ENV !== "production",
   });
-  return json({ hasActivePayment, subscription: appSubscriptions?.[0] ?? null });
+  return json({
+    hasActivePayment,
+    subscription: appSubscriptions?.[0] ?? null,
+    planName: MONTHLY_PLAN,
+    planPrice: MONTHLY_PRICE,
+    trialDays: FREE_TRIAL_DAYS,
+  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -24,7 +30,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function BillingPage() {
-  const { hasActivePayment } = useLoaderData<typeof loader>();
+  const { hasActivePayment, planName, planPrice, trialDays } =
+    useLoaderData<typeof loader>();
 
   return (
     <Page title="Billing">
@@ -33,11 +40,11 @@ export default function BillingPage() {
           <Card>
             <BlockStack gap="400">
               <Text as="h2" variant="headingMd">
-                {MONTHLY_PLAN} — ${MONTHLY_PRICE}/month
+                {planName} — ${planPrice}/month
               </Text>
               <Text as="p">
                 Unlimited recovery popups, exit-intent + timed triggers, automatic
-                discount code creation, and design customization. {FREE_TRIAL_DAYS}-day
+                discount code creation, and design customization. {trialDays}-day
                 free trial included.
               </Text>
               {hasActivePayment ? (
@@ -47,7 +54,7 @@ export default function BillingPage() {
               ) : (
                 <Form method="post">
                   <Button submit variant="primary">
-                    Start {FREE_TRIAL_DAYS}-day free trial
+                    Start {trialDays}-day free trial
                   </Button>
                 </Form>
               )}
