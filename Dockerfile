@@ -1,0 +1,24 @@
+FROM node:20-slim AS base
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Install dependencies
+FROM base AS deps
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Build the app
+FROM base AS build
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# Production image
+FROM base AS production
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/build ./build
+COPY --from=build /app/public ./public
+COPY package.json ./
+
+EXPOSE 3000
+CMD ["npx", "remix-serve", "./build/server/index.js"]
