@@ -1,0 +1,48 @@
+# Cart Recovery Popup — Shopify app configuration
+# Values with TODO must be filled after creating the app in Partner Dashboard.
+
+client_id = "ab2c3d2d6c9cde103c3c1975de332ca7"
+name = "CartWin"
+handle = "cartwin"
+application_url = "TODO_APP_URL"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "lumen-demo-rz4icdzs.myshopify.com"
+
+[auth]
+redirect_urls = ["TODO_APP_URL/auth/callback"]
+
+[webhooks]
+api_version = "2026-01"
+
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "/webhooks/app/uninstalled"
+
+[[webhooks.subscriptions]]
+topics = ["app/scopes_update"]
+uri = "/webhooks/app/scopes_update"
+
+# MANDATORY GDPR compliance webhooks — app review auto-rejects without these
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "/webhooks/compliance"
+
+[access_scopes]
+# Minimal scopes: only what the app needs
+scopes = "write_discounts,read_discounts"
+
+[app_proxy]
+url = "/tools"
+prefix = "tools"
+subpath = "cart-recovery"
+
+[pos]
+embedded = false
+
+[privacy_compliance]
+customer_data_request_url = "TODO_APP_URL/webhooks/compliance"
+customer_deletion_url = "TODO_APP_URL/webhooks/compliance"
+shop_deletion_url = "TODO_APP_URL/webhooks/compliance"

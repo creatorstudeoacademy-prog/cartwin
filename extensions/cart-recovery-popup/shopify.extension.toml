@@ -1,0 +1,9 @@
+# Cart Recovery Popup — theme app extension
+# App embed block: floating overlay, activated in theme editor > App embeds.
+
+api_version = "2026-01"
+
+[[extensions]]
+type = "theme"
+name = "cart-recovery-popup"
+handle = "cart-recovery-popup"

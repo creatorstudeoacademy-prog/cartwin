@@ -1,0 +1,31 @@
+{%- comment -%}
+  Cart Recovery Popup — app embed block (target: body).
+  Renders a floating overlay; JS decides when to show it (exit intent / timer).
+  Activate in theme editor: Theme settings > App embeds.
+{%- endcomment -%}
+
+{%- if block.settings.enabled -%}
+  <script>
+    window.__crpConfigUrl = "/tools/cart-recovery/config?shop={{ shop.permanent_domain | url_encode }}";
+  </script>
+  <script src="{{ 'recovery-popup.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Cart Recovery Popup",
+  "target": "body",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable recovery popup",
+      "default": true
+    },
+    {
+      "type": "paragraph",
+      "content": "Configure the popup text, discount and timing in the app admin (Apps > Cart Recovery Popup > Popup Settings)."
+    }
+  ]
+}
+{% endschema %}

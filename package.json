@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "@prisma/client": "^5.18.0",
+    "@remix-run/node": "^2.9.2",
+    "@remix-run/react": "^2.9.2",
+    "@remix-run/serve": "^2.9.2",
+    "@shopify/app-bridge-react": "^4.1.2",
+    "@shopify/polaris": "^13.9.5",
+    "@shopify/shopify-app-remix": "^3.4.0",
+    "@shopify/shopify-app-session-storage-prisma": "^5.0.5",
+    "isbot": "^3.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "description": "Exit-intent cart recovery popup with discount codes for Shopify stores",
+  "devDependencies": {
+    "@remix-run/dev": "^2.9.2",
+    "@shopify/app": "^3.58.2",
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.7",
+    "prisma": "^5.18.0",
+    "typescript": "^5.4.2",
+    "vite": "^6.0.0",
+    "vite-tsconfig-paths": "^4.2.0"
+  },
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "name": "cart-recovery-popup",
+  "private": true,
+  "scripts": {
+    "build": "remix vite:build",
+    "deploy": "shopify app deploy",
+    "dev": "shopify app dev",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
+  },
+  "type": "module",
+  "version": "1.0.0"
+}
