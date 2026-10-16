@@ -3,7 +3,7 @@
 
 client_id = "8285b8fd5b27409d57364414be7a9d0c"
 name = "CartWin"
-handle = "cartwin"
+handle = "cartwin-recovery"
 application_url = "https://cartwin-production.up.railway.app"
 embedded = true
 
@@ -41,8 +41,3 @@ subpath = "cart-recovery"
 
 [pos]
 embedded = false
-
-[privacy_compliance]
-customer_data_request_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
-customer_deletion_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
-shop_deletion_url = "https://cartwin-production.up.railway.app/webhooks/compliance"
