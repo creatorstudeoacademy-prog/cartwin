@@ -4,12 +4,10 @@
   Activate in theme editor: Theme settings > App embeds.
 {%- endcomment -%}
 
-{%- if block.settings.enabled -%}
-  <script>
-    window.__crpConfigUrl = "/tools/cart-recovery/config?shop={{ shop.permanent_domain | url_encode }}";
-  </script>
-  <script src="{{ 'recovery-popup.js' | asset_url }}" defer></script>
-{%- endif -%}
+<script>
+  window.__crpConfigUrl = "/tools/cart-recovery/config?shop={{ shop.permanent_domain | url_encode }}";
+</script>
+<script src="{{ 'recovery-popup.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
