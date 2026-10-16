@@ -33,13 +33,23 @@ async function isTestMode(admin: any, nodeEnvTest: boolean) {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, billing } = await authenticate.admin(request);
   const isTest = await isTestMode(admin, process.env.NODE_ENV !== "production");
-  const { hasActivePayment, appSubscriptions } = await billing.check({
-    plans: [MONTHLY_PLAN],
-    isTest,
-  });
+  // Never 500 the billing page: if the status check fails, show the plan
+  // with a subscribe button anyway (same pattern as the dashboard).
+  let hasActivePayment = false;
+  let subscription = null;
+  try {
+    const result = await billing.check({
+      plans: [MONTHLY_PLAN],
+      isTest,
+    });
+    hasActivePayment = result.hasActivePayment;
+    subscription = result.appSubscriptions?.[0] ?? null;
+  } catch (error) {
+    console.error("[billing] check failed, showing plan anyway:", error);
+  }
   return json({
     hasActivePayment,
-    subscription: appSubscriptions?.[0] ?? null,
+    subscription,
     planName: MONTHLY_PLAN,
     planPrice: MONTHLY_PRICE,
     trialDays: FREE_TRIAL_DAYS,
