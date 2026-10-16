@@ -9,19 +9,20 @@ import { authenticate, MONTHLY_PLAN } from "../shopify.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session, billing } = await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
-  // Require an active subscription; redirect to billing page if none
-  await billing.require({
-    plans: [MONTHLY_PLAN],
-    isTest: process.env.NODE_ENV !== "production",
-    onFailure: async () => {
-      throw new Response(null, {
-        status: 302,
-        headers: { Location: "/app/billing" },
-      });
-    },
-  });
+  // TEMP DISABLED for debugging - billing gate causes blank page
+  // const { billing } = await authenticate.admin(request);
+  // await billing.require({
+  //   plans: [MONTHLY_PLAN],
+  //   isTest: process.env.NODE_ENV !== "production",
+  //   onFailure: async () => {
+  //     throw new Response(null, {
+  //       status: 302,
+  //       headers: { Location: "/app/billing" },
+  //     });
+  //   },
+  // });
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "", shop: session.shop };
 };
