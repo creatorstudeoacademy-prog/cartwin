@@ -14,11 +14,28 @@ import {
 } from "@shopify/polaris";
 import { authenticate, MONTHLY_PLAN, MONTHLY_PRICE, FREE_TRIAL_DAYS } from "../shopify.server";
 
+// Development stores can only create TEST subscriptions; production stores
+// require REAL ones. Detect the store type so billing works on both.
+async function isTestMode(admin: any, nodeEnvTest: boolean) {
+  if (nodeEnvTest) return true;
+  try {
+    const res: any = await admin.graphql(
+      `#graphql
+      query { shop { plan { partnerDevelopment } } }`
+    );
+    const json = await res.json();
+    return json?.data?.shop?.plan?.partnerDevelopment === true;
+  } catch {
+    return true; // fail safe: test mode never charges by accident
+  }
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { billing } = await authenticate.admin(request);
+  const { admin, billing } = await authenticate.admin(request);
+  const isTest = await isTestMode(admin, process.env.NODE_ENV !== "production");
   const { hasActivePayment, appSubscriptions } = await billing.check({
     plans: [MONTHLY_PLAN],
-    isTest: process.env.NODE_ENV !== "production",
+    isTest,
   });
   return json({
     hasActivePayment,
@@ -30,11 +47,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { billing } = await authenticate.admin(request);
+  const { admin, billing } = await authenticate.admin(request);
+  const isTest = await isTestMode(admin, process.env.NODE_ENV !== "production");
   try {
     await billing.request({
       plan: MONTHLY_PLAN,
-      isTest: process.env.NODE_ENV !== "production",
+      isTest,
       returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
     });
   } catch (error) {
