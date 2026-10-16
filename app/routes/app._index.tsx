@@ -194,7 +194,9 @@ export default function Dashboard() {
                   </List.Item>
                 </List>
                 <InlineStack gap="300">
-                  <Button url={themeEditorUrl} external>
+                  <Button
+                    onClick={() => window.open(themeEditorUrl, "_blank", "noopener")}
+                  >
                     Open theme editor
                   </Button>
                   <Button url="/app/settings">Tune the popup</Button>

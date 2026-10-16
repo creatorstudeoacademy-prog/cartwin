@@ -33,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { billing } = await authenticate.admin(request);
   await billing.request({
     plan: MONTHLY_PLAN,
-    isTest: process.env.NODE_ENV !== "production",
+    isTest: true,
     returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
   });
   return json({ ok: true });
