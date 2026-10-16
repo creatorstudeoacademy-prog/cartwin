@@ -15,13 +15,25 @@ import {
   Page,
   Text,
 } from "@shopify/polaris";
-import { authenticate } from "../shopify.server";
+import { authenticate, MONTHLY_PLAN } from "../shopify.server";
 import { getSettings } from "../models/settings.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const settings = await getSettings(session.shop);
-  return json({ shop: session.shop, settings });
+  // Check subscription status (non-blocking - no redirect)
+  let hasActivePayment = false;
+  try {
+    const result = await billing.check({
+      plans: [MONTHLY_PLAN],
+      isTest: process.env.NODE_ENV !== "production",
+    });
+    hasActivePayment = result.hasActivePayment;
+  } catch {
+    // If billing check fails, assume no subscription
+    hasActivePayment = false;
+  }
+  return json({ shop: session.shop, settings, hasActivePayment });
 };
 
 const TRIGGER_LABELS: Record<string, string> = {
@@ -31,7 +43,7 @@ const TRIGGER_LABELS: Record<string, string> = {
 };
 
 export default function Dashboard() {
-  const { shop, settings } = useLoaderData<typeof loader>();
+  const { shop, settings, hasActivePayment } = useLoaderData<typeof loader>();
   const storeHandle = shop.replace(".myshopify.com", "");
   const themeEditorUrl = `https://admin.shopify.com/store/${storeHandle}/themes/current/editor?context=apps`;
 
@@ -42,6 +54,20 @@ export default function Dashboard() {
       primaryAction={{ content: "Customize popup", url: "/app/settings" }}
     >
       <Layout>
+        {!hasActivePayment && (
+          <Layout.Section>
+            <Banner
+              title="Start your free trial"
+              tone="info"
+              action={{ content: "View plans", url: "/app/billing" }}
+            >
+              <p>
+                You're on a trial. Subscribe to keep recovering abandoned carts
+                after your trial ends.
+              </p>
+            </Banner>
+          </Layout.Section>
+        )}
         <Layout.Section>
           {settings.enabled ? (
             <Banner title="Your recovery popup is live" tone="success">
