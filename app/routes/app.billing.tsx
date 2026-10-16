@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
   Banner,
   BlockStack,
@@ -31,11 +31,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { billing } = await authenticate.admin(request);
-  await billing.request({
-    plan: MONTHLY_PLAN,
-    isTest: true,
-    returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
-  });
+  try {
+    await billing.request({
+      plan: MONTHLY_PLAN,
+      isTest: true,
+      returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
+    });
+  } catch (error) {
+    // billing.request() throws a redirect on success; log anything else
+    if (error instanceof Response) throw error;
+    console.error("[billing] request failed:", error);
+    return json(
+      { ok: false, error: error instanceof Error ? error.message : "Billing failed" },
+      { status: 500 }
+    );
+  }
   return json({ ok: true });
 };
 
@@ -50,6 +60,7 @@ const FEATURES = [
 export default function BillingPage() {
   const { hasActivePayment, planName, planPrice, trialDays } =
     useLoaderData<typeof loader>();
+  const actionData = useActionData<{ ok: boolean; error?: string }>();
 
   return (
     <Page
@@ -103,6 +114,11 @@ export default function BillingPage() {
                     monthly cost. You won&rsquo;t be charged during the trial.
                   </Text>
                   <Form method="post">
+                    {actionData && !actionData.ok && (
+                      <Banner tone="critical">
+                        <p>Billing error: {actionData.error}</p>
+                      </Banner>
+                    )}
                     <Button submit variant="primary" fullWidth size="large">
                       Start {trialDays}-day free trial
                     </Button>
