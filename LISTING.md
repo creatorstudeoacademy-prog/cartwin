@@ -39,12 +39,11 @@ CartWin detects when a shopper is about to leave with items in their cart and sh
 
 | Plan | Price | For |
 |------|-------|-----|
-| Free | $0 | Up to 50 popup views/month, 1 active campaign |
-| Pro | $7.99/month | Unlimited views, unlimited campaigns, A/B testing, priority support |
+| Pro | $9.99/month | Unlimited popups, exit-intent + timed triggers, auto discount codes, full customization |
 
-14-day free trial on Pro.
+7-day free trial on Pro.
 
-**Competitor context:** Budget options (Back2Cart, BuckLIT) sit at $4.99/mo; mid-range popup builders run $15–$30/mo; premium (Wisepops) is $99–$299/mo. At $7.99 with a free tier, CartWin positions between budget and mid-range — affordable enough for small stores to try, with room to grow.
+**Competitor context:** Budget options (Back2Cart, BuckLIT) sit at $4.99/mo; mid-range popup builders run $15–$30/mo; premium (Wisepops) is $99–$299/mo. At $9.99, CartWin positions between budget and mid-range — affordable enough for small stores to try, with room to grow.
 
 ## 6. Screenshot shot-list (1600×900)
 
