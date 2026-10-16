@@ -2,10 +2,12 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
+  Banner,
   BlockStack,
   Button,
   Card,
   Checkbox,
+  Divider,
   InlineStack,
   Layout,
   Page,
@@ -113,68 +115,58 @@ export default function SettingsPage() {
   const actionData = useActionData<typeof action>();
   const current = actionData?.settings ?? settings;
 
+  const [enabled, setEnabled] = useState(current.enabled);
   const [trigger, setTrigger] = useState(current.trigger);
   const [delay, setDelay] = useState(current.delaySeconds);
+  const [showOnce, setShowOnce] = useState(current.showOncePerSession);
+  const [discountCode, setDiscountCode] = useState(current.discountCode);
+  const [discountPercent, setDiscountPercent] = useState(current.discountPercent);
+  const [heading, setHeading] = useState(current.heading);
+  const [subheading, setSubheading] = useState(current.subheading);
+  const [buttonText, setButtonText] = useState(current.buttonText);
+  const [backgroundColor, setBackgroundColor] = useState(current.backgroundColor);
+  const [accentColor, setAccentColor] = useState(current.accentColor);
+  const [textColor, setTextColor] = useState(current.textColor);
+
+  const previewSubheading = subheading.replace("{percent}", String(discountPercent));
+
+  const handleDelayChange = (value: number | [number, number]) =>
+    setDelay(typeof value === "number" ? value : value[0]);
+  const handlePercentChange = (value: number | [number, number]) =>
+    setDiscountPercent(typeof value === "number" ? value : value[0]);
 
   return (
-    <Page title="Popup Settings" backAction={{ content: "Dashboard", url: "/app" }}>
-      <Layout>
-        <Layout.Section>
-          <Form method="post">
+    <Page
+      title="Popup Settings"
+      subtitle="Tune when the popup appears, what it offers, and how it looks."
+      backAction={{ content: "Dashboard", url: "/app" }}
+    >
+      <Form method="post">
+        <Layout>
+          <Layout.Section>
             <BlockStack gap="400">
               {actionData && !actionData.ok && (
-                <Card>
-                  <Text as="p" tone="critical">
-                    {actionData.error}
-                  </Text>
-                </Card>
+                <Banner title="Couldn't save settings" tone="critical">
+                  <p>{actionData.error}</p>
+                </Banner>
               )}
               {actionData?.ok && (
-                <Card>
-                  <Text as="p" tone="success">
-                    Settings saved.
-                  </Text>
-                </Card>
+                <Banner title="Settings saved" tone="success">
+                  <p>Your popup will use these settings right away.</p>
+                </Banner>
               )}
 
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
-                    Behaviour
+                    Status
                   </Text>
                   <Checkbox
                     label="Enable recovery popup"
+                    helpText="When on, the popup can appear for shoppers with items in their cart. Turn it off any time — for example while you redesign your theme."
                     name="enabled"
-                    checked={current.enabled}
-                    // uncontrolled fallback handled by form data
-                  />
-                  <Select
-                    label="Trigger"
-                    name="trigger"
-                    options={[
-                      { label: "Exit intent (desktop) + timer (mobile)", value: "exit_intent" },
-                      { label: "Timed only", value: "timed" },
-                      { label: "Exit intent only", value: "exit_only" },
-                    ]}
-                    value={trigger}
-                    onChange={setTrigger}
-                  />
-                  {(trigger === "exit_intent" || trigger === "timed") && (
-                    <RangeSlider
-                      label="Delay before popup can appear (seconds)"
-                      name="delaySeconds"
-                      value={delay}
-                      min={5}
-                      max={120}
-                      step={5}
-                      onChange={setDelay}
-                      output
-                    />
-                  )}
-                  <Checkbox
-                    label="Show only once per session"
-                    name="showOncePerSession"
-                    checked={current.showOncePerSession}
+                    checked={enabled}
+                    onChange={setEnabled}
                   />
                 </BlockStack>
               </Card>
@@ -182,22 +174,74 @@ export default function SettingsPage() {
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
-                    Discount
+                    When it appears
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    Catch shoppers at the exact moment they decide to leave.
+                  </Text>
+                  <Select
+                    label="Trigger"
+                    helpText="Exit intent watches desktop shoppers moving to close the tab. Timed works on mobile too, where there is no mouse to track — most stores use the combined option."
+                    name="trigger"
+                    options={[
+                      { label: "Exit intent (desktop) + timer (mobile) — recommended", value: "exit_intent" },
+                      { label: "Timed only", value: "timed" },
+                      { label: "Exit intent only", value: "exit_only" },
+                    ]}
+                    value={trigger}
+                    onChange={setTrigger}
+                  />
+                  {(trigger === "exit_intent" || trigger === "timed") && (
+                    <>
+                      <input type="hidden" name="delaySeconds" value={delay} />
+                      <RangeSlider
+                        label="Delay before the popup can appear"
+                        helpText="Give shoppers 15–30 seconds to look around first — interrupting too early hurts trust, too late misses the exit."
+                        value={delay}
+                        min={5}
+                        max={120}
+                        step={5}
+                        onChange={handleDelayChange}
+                        output
+                      />
+                    </>
+                  )}
+                  <Checkbox
+                    label="Show only once per session"
+                    helpText="Recommended: one gentle nudge per visit converts better than repeated popups."
+                    name="showOncePerSession"
+                    checked={showOnce}
+                    onChange={setShowOnce}
+                  />
+                </BlockStack>
+              </Card>
+
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    The offer
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    A small discount at the right moment turns &ldquo;maybe
+                    later&rdquo; into &ldquo;buy now&rdquo;.
                   </Text>
                   <TextField
                     label="Discount code shown in the popup"
+                    helpText="If the code doesn't exist in your store yet, CartWin creates it automatically when you save."
                     name="discountCode"
-                    defaultValue={current.discountCode}
-                    helpText="If the code does not exist, we create it automatically."
+                    value={discountCode}
+                    onChange={setDiscountCode}
                     autoComplete="off"
                   />
+                  <input type="hidden" name="discountPercent" value={discountPercent} />
                   <RangeSlider
                     label="Discount percentage"
-                    name="discountPercent"
-                    value={current.discountPercent}
+                    helpText="10–15% is the sweet spot: enough to motivate the shopper, small enough to protect your margin."
+                    value={discountPercent}
                     min={5}
                     max={50}
                     step={5}
+                    onChange={handlePercentChange}
                     output
                   />
                 </BlockStack>
@@ -208,26 +252,118 @@ export default function SettingsPage() {
                   <Text as="h2" variant="headingMd">
                     Design
                   </Text>
-                  <TextField label="Heading" name="heading" defaultValue={current.heading} autoComplete="off" />
-                  <TextField label="Subheading" name="subheading" defaultValue={current.subheading} autoComplete="off" />
-                  <TextField label="Button text" name="buttonText" defaultValue={current.buttonText} autoComplete="off" />
+                  <Text as="p" tone="subdued">
+                    Match the popup to your brand. The preview updates as you type.
+                  </Text>
+                  <TextField
+                    label="Heading"
+                    name="heading"
+                    value={heading}
+                    onChange={setHeading}
+                    autoComplete="off"
+                  />
+                  <TextField
+                    label="Subheading"
+                    helpText="Use {percent} to insert the discount percentage automatically."
+                    name="subheading"
+                    value={subheading}
+                    onChange={setSubheading}
+                    autoComplete="off"
+                  />
+                  <TextField
+                    label="Button text"
+                    name="buttonText"
+                    value={buttonText}
+                    onChange={setButtonText}
+                    autoComplete="off"
+                  />
                   <InlineStack gap="400">
-                    <TextField label="Background" name="backgroundColor" defaultValue={current.backgroundColor} autoComplete="off" />
-                    <TextField label="Accent" name="accentColor" defaultValue={current.accentColor} autoComplete="off" />
-                    <TextField label="Text" name="textColor" defaultValue={current.textColor} autoComplete="off" />
+                    <div style={{ flex: 1, minWidth: 140 }}>
+                      <TextField
+                        label="Background color"
+                        name="backgroundColor"
+                        value={backgroundColor}
+                        onChange={setBackgroundColor}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 140 }}>
+                      <TextField
+                        label="Accent color"
+                        name="accentColor"
+                        value={accentColor}
+                        onChange={setAccentColor}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 140 }}>
+                      <TextField
+                        label="Text color"
+                        name="textColor"
+                        value={textColor}
+                        onChange={setTextColor}
+                        autoComplete="off"
+                      />
+                    </div>
                   </InlineStack>
+                  <Divider />
+                  <Text as="h3" variant="headingSm">
+                    Live preview
+                  </Text>
+                  <div
+                    style={{
+                      backgroundColor,
+                      borderRadius: 12,
+                      padding: 28,
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: textColor,
+                        fontWeight: 700,
+                        fontSize: 20,
+                        marginBottom: 10,
+                      }}
+                    >
+                      {heading}
+                    </div>
+                    <div
+                      style={{
+                        color: textColor,
+                        opacity: 0.85,
+                        fontSize: 14,
+                        marginBottom: 18,
+                      }}
+                    >
+                      {previewSubheading}
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-block",
+                        backgroundColor: accentColor,
+                        color: "#0B0E17",
+                        fontWeight: 700,
+                        fontSize: 14,
+                        padding: "10px 26px",
+                        borderRadius: 8,
+                      }}
+                    >
+                      {buttonText}
+                    </div>
+                  </div>
                 </BlockStack>
               </Card>
 
               <InlineStack>
-                <Button submit variant="primary">
+                <Button submit variant="primary" size="large">
                   Save settings
                 </Button>
               </InlineStack>
             </BlockStack>
-          </Form>
-        </Layout.Section>
-      </Layout>
+          </Layout.Section>
+        </Layout>
+      </Form>
     </Page>
   );
 }

@@ -1,7 +1,17 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { BlockStack, Button, Card, Layout, Page, Text } from "@shopify/polaris";
+import {
+  Banner,
+  BlockStack,
+  Button,
+  Card,
+  Divider,
+  InlineStack,
+  Layout,
+  Page,
+  Text,
+} from "@shopify/polaris";
 import { authenticate, MONTHLY_PLAN, MONTHLY_PRICE, FREE_TRIAL_DAYS } from "../shopify.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -29,37 +39,78 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return json({ ok: true });
 };
 
+const FEATURES = [
+  "Unlimited recovery popups on every page",
+  "Exit-intent + timed triggers",
+  "Automatic discount code creation",
+  "Full popup design customization",
+  "Works with any theme via app embed",
+];
+
 export default function BillingPage() {
   const { hasActivePayment, planName, planPrice, trialDays } =
     useLoaderData<typeof loader>();
 
   return (
-    <Page title="Billing">
+    <Page
+      title="Billing"
+      subtitle="One plan. Everything included."
+      backAction={{ content: "Dashboard", url: "/app" }}
+    >
       <Layout>
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">
-                {planName} — ${planPrice}/month
-              </Text>
-              <Text as="p">
-                Unlimited recovery popups, exit-intent + timed triggers, automatic
-                discount code creation, and design customization. {trialDays}-day
-                free trial included.
-              </Text>
-              {hasActivePayment ? (
-                <Text as="p" tone="success">
-                  Your subscription is active.
-                </Text>
-              ) : (
-                <Form method="post">
-                  <Button submit variant="primary">
-                    Start {trialDays}-day free trial
-                  </Button>
-                </Form>
-              )}
-            </BlockStack>
-          </Card>
+        <Layout.Section variant="oneHalf">
+          <BlockStack gap="400">
+            {hasActivePayment ? (
+              <Banner title={`${planName} is active`} tone="success">
+                <p>
+                  You&rsquo;re on the ${planPrice}/month plan. Your popup keeps
+                  recovering abandoned carts with no limits.
+                </p>
+              </Banner>
+            ) : (
+              <Card>
+                <BlockStack gap="400">
+                  <BlockStack gap="100">
+                    <Text as="h2" variant="headingLg">
+                      {planName}
+                    </Text>
+                    <InlineStack gap="200" blockAlign="baseline">
+                      <Text as="p" variant="heading2xl">
+                        ${planPrice}
+                      </Text>
+                      <Text as="p" tone="subdued">
+                        / month
+                      </Text>
+                    </InlineStack>
+                    <Text as="p" tone="subdued">
+                      {trialDays}-day free trial &middot; Cancel anytime
+                    </Text>
+                  </BlockStack>
+                  <Divider />
+                  <BlockStack gap="200">
+                    {FEATURES.map((feature) => (
+                      <InlineStack key={feature} gap="200" blockAlign="center">
+                        <Text as="span" tone="success" fontWeight="bold">
+                          &#10003;
+                        </Text>
+                        <Text as="span">{feature}</Text>
+                      </InlineStack>
+                    ))}
+                  </BlockStack>
+                  <Divider />
+                  <Text as="p" tone="subdued">
+                    Recovering a single abandoned cart typically covers the
+                    monthly cost. You won&rsquo;t be charged during the trial.
+                  </Text>
+                  <Form method="post">
+                    <Button submit variant="primary" fullWidth size="large">
+                      Start {trialDays}-day free trial
+                    </Button>
+                  </Form>
+                </BlockStack>
+              </Card>
+            )}
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>
