@@ -19,6 +19,7 @@ const shopify = shopifyApp({
   future: {
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,
+    expiringOfflineAccessTokens: true,
   },
   billing: {
     [MONTHLY_PLAN]: {
